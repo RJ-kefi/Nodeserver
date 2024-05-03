@@ -8,7 +8,7 @@ app.use(bodyParser.json());
 const conn = process.env.conn;
 const port=process.env.port || 3000 ;
 
-
+app.use(bodyParser.urlencoded({extended:true}))
 
 mongoose.connect(conn)
         .then(() => console.log('connected'))
