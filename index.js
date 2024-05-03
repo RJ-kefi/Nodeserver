@@ -5,7 +5,7 @@ const { Timestamp } = require('mongodb');
 const { default: mongoose } = require('mongoose');
 const app = express()
 app.use(bodyParser.json());
-const conn = process.env.conn;
+const conn = "mongodb+srv://user:user@cluster0.xjskjfa.mongodb.net/test";
 const port=process.env.port || 3000 ;
 
 app.use(bodyParser.urlencoded({extended:true}))
@@ -117,7 +117,7 @@ app.get("/get-user/:name",(req,res)=>{
 
 })
 
-app.listen(port,()=>console.log("Application Started"+port))
+app.listen(3000,()=>console.log("Application Started"+port))
 
 
 
