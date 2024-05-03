@@ -5,8 +5,8 @@ const { default: mongoose } = require('mongoose');
 const cors = require('cors')
 const app = express()
 
-const PORT = process.env.PORT || 3000;
-const conn = process.env.CONN;
+const PORT =  3000;
+const conn = "mongodb+srv://user:user@cluster0.xjskjfa.mongodb.net/test";
 
 const allowCrossDomain = (req, res, next) => {
     res.header(`Access-Control-Allow-Origin`, `*`);
