@@ -1,123 +1,106 @@
-const bodyParser = require('body-parser');
 require('dotenv').config();
+const bodyParser = require('body-parser');
 const express = require('express');
-const { Timestamp } = require('mongodb');
 const { default: mongoose } = require('mongoose');
+const cors = require('cors')
 const app = express()
-app.use(bodyParser.json());
-const conn = "mongodb+srv://user:user@cluster0.xjskjfa.mongodb.net/test";
-const port=process.env.port || 3000 ;
 
-app.use(bodyParser.urlencoded({extended:true}))
+const PORT = process.env.PORT || 3000;
+const conn = process.env.CONN;
+
+const allowCrossDomain = (req, res, next) => {
+    res.header(`Access-Control-Allow-Origin`, `*`);
+    res.header(`Access-Control-Allow-Methods`, `GET,PUT,POST,DELETE`);
+    res.header(`Access-Control-Allow-Headers`, `Content-Type`);
+    next();
+};
+
+app.use(cors())
+app.use(allowCrossDomain)
+app.options('*', cors())
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: true}))
 
 mongoose.connect(conn)
         .then(() => console.log('connected'))
-        .catch((e) => console.log(e))
+        .catch(() => console.log('Error'))
+    
+    // create a user --> temp
 
-const todoSchema = new mongoose.Schema({
-    Toid: {
+const demoSchema = new mongoose.Schema({
+    name: {
         type: String,
         required: true
     },
-    Totitle: {
-        type: String
+    age: {
+        type: Number
     },
-    Todesc: {
-        type: String
+    salary: {
+        type: Number
     },
-    Totime: {
-        type: String
-     
+    email: {
+        type: String,
+        required: true
     }
 })
 
-const user = mongoose.model('mymodel',todoSchema, 'todoschema')
+const user = mongoose.model('mymodel', demoSchema, 'demodata')
 
+// GET Request (ENDPOINTS)
+app.get("/", (req, res) => {
+    res.end("Hello world")
+})
 
+app.get("/about", (req, res) => {
+    res.end("welcome to about page")
+})
 
+// http://localhost:8080/name/aaryan
+app.get("/name/:myname", (req, res) => {
+    res.end("welcome " + req.params.myname)
+})
 
+// POST Request (ENDPOINTS)
+// TODO:body-parser
+
+app.post("/login", (req, res) => {
+    const body = req.body;
+    const username = body.username;
+    const pass = body.pass;
+
+    if(username === "aryan" && pass === 123)
+        res.json({
+            data: "success",
+        })
+    else 
+        res.end("Incorrect creds")
+})
 
 app.post('/create', async (req, res) => {
     const body = req.body;
 
-    const id = body.id;
-    const title = body.title;
-    const desc = body.desc;
-    const time = body.time;
+    const name = body.name;
+    const age = body.age;
+    const salary = body.salary;
+    const email = body.email;
 
-    const insertedUser = await user.create({Toid: id, Totitle: title, Todesc: desc, Totime:time})
+    const insertedUser = await user.create({name: name, age: age, salary: salary, email: email})
 
     res.json({msg: "User inserted successfully", data: insertedUser})
 })
 
-app.get('/id/:id', async (req, res) => {
-    const id = req.params.id;
+app.get('/count', async (req, res) =>{
+    res.json({count: await user.countDocuments()})
+})
 
-    const idTodo= await user.find({Toid: id})
+app.get('/id/:name', async (req, res) => {
+    const name = req.params.name;
 
-    res.json({msg: "success", data: idTodo})
+    const namedUser = await user.find({name: name})//.where('name').equals(name);
+
+    res.json({msg: "success", data: namedUser})
 })
 
 
-
-
-
-
-
-
-
-
-
-
-
-app.use(bodyParser.json())
-app.get("/",(req,res)=>{
-    res.end("Hello World")
-})
-
-const userdetails=[];
-
-app.get("/name/:myname",(req,res)=>{
-    res.end("Hello "+req.params.myname)
-})
-
-
-app.post("/login",(req,res)=>{
-    const body=req.body;
-    const username=body.username;
-    const pass=body.pass;
-    if(username==='Ranjith' && pass=='123')
-        res.end("Logged in successfully");
-    else
-        res.end("Invalid credentials");
-
-})
-app.post("/register",(req,res)=>{
-    const body=req.body;
-    const username=body.username;
-    const pass=body.pass;
-    const address=body.address;
-    userdetails[0]=username;
-    userdetails[1]=pass;
-    userdetails[2]=address;
-    res.end("Regesterd successfully")
-  
-})
-app.get("/get-user/:name",(req,res)=>{
-    const name=req.params.name;
-    if(name==userdetails[0]){
-        res.json({
-            "pass":userdetails[1],
-           "Address":userdetails[2]
-          })
-    }
-    else{
-        res.end("Username Not found")
-    }
-
-})
-
-app.listen(3000,()=>console.log("Application Started"+port))
-
-
-
+// http://localhost:8080/
+app.listen(PORT, () => console.log("Application started on PORT " + PORT))
