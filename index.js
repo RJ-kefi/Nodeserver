@@ -6,6 +6,7 @@ const { default: mongoose } = require('mongoose');
 const app = express()
 app.use(bodyParser.json());
 const conn = process.env.conn;
+const port=process.env.conn;
 
 
 
@@ -116,7 +117,7 @@ app.get("/get-user/:name",(req,res)=>{
 
 })
 
-app.listen(8080,()=>console.log("Application Started"))
+app.listen(process.env.port,()=>console.log("Application Started"))
 
 
 
