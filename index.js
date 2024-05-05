@@ -42,9 +42,13 @@ const userSchema = new mongoose.Schema({
 const user = mongoose.model('mymodel1', userSchema, 'userSchema')
 
 const todoSchema = new mongoose.Schema({
+    id:{
+        type:Number,
+        required: true
+    },
     title: {
         type: String,
-        required: true
+       
     },
     desc: {
         type: String
@@ -87,6 +91,18 @@ app.post('/createtodo', async (req, res) => {
 app.get('/count', async (req, res) =>{
     res.json({count: await user.countDocuments()})
 })
+
+app.get('/tododata', async (req, res) => {
+    try {
+        // Fetch all users from the database
+        const todoData = await todolist.find({});
+
+        res.json(todoData);
+    } catch (error) {
+        console.error("Error while fetching users:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
 
 app.get('/id/:name', async (req, res) => {
     const name = req.params.name;
