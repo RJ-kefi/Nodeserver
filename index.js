@@ -78,12 +78,12 @@ app.post('/createuser', async (req, res) => {
 
 app.post('/createtodo', async (req, res) => {
     const body = req.body;
-
+    const id=body.id;
     const title = body.title;
     const desc = body.desc;
     const time = body.time;
 
-    const insertedTodo = await todolist.create({title:title,desc:desc,time:time})
+    const insertedTodo = await todolist.create({id:id,title:title,desc:desc,time:time})
 
     res.json({msg: "data inserted successfully", data: insertedTodo})
 })
