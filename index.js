@@ -27,14 +27,16 @@ mongoose.connect(conn)
     // create a user --> temp
 
 const userSchema = new mongoose.Schema({
-    username: {
+    name: {
         type: String,
         required: true
     },
-    age: {
-        type: Number
+    email: {
+        type: String,
+        required:true,
+        
     },
-    address: {
+    password: {
         type: String
     }
 })
@@ -42,10 +44,9 @@ const userSchema = new mongoose.Schema({
 const user = mongoose.model('mymodel1', userSchema, 'userSchema')
 
 const todoSchema = new mongoose.Schema({
-    id:{
-        type:Number,
-        required: true
-    },
+   email:{
+    type :String
+   },
     title: {
         type: String,
        
@@ -66,24 +67,26 @@ app.post('/createuser', async (req, res) => {
     const body = req.body;
 
     const name = body.name;
-    const age = body.age;
-    const address = body.address;
+    const email = body.email;
+    const password = body.password;
+    
 
 
-    const insertedUser = await user.create({username: name, age: age,address:address})
+    const insertedUser = await user.create({name: name, email: email,password:password})
 
     res.json({msg: "User inserted successfully", data: insertedUser})
 })
 
 
-app.post('/createtodo', async (req, res) => {
+app.post('/createtodo/:email', async (req, res) => {
     const body = req.body;
-    const id=body.id;
+    
+    const {email}=req.params;
     const title = body.title;
     const desc = body.desc;
     const time = body.time;
 
-    const insertedTodo = await todolist.create({id:id,title:title,desc:desc,time:time})
+    const insertedTodo = await todolist.create({email:email,title:title,desc:desc,time:time})
 
     res.json({msg: "data inserted successfully", data: insertedTodo})
 })
@@ -103,6 +106,38 @@ app.get('/tododata', async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const userdata = await user.findOne({ email, password });
+        if (userdata) {
+            res.json({ success: true, message: 'Login successful' });
+        } else {
+            res.status(401).json({ success: false, message: 'Invalid email or password' });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+app.get('/tododata/:email', async (req, res) => {
+    const { email } = req.params;
+    try {
+        // Fetch all todo data where the email matches
+        const todoData = await todolist.find({ email });
+
+        res.json(todoData);
+    } catch (error) {
+        console.error("Error while fetching todo data:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
 
 app.get('/id/:name', async (req, res) => {
     const name = req.params.name;
