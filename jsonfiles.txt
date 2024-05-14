@@ -1,0 +1,13 @@
+{
+  "name":"user1",
+  "email":"user1@",
+  "phone":"00789",
+  "password":"123"
+  
+}
+{
+  "claimno":100,
+  "desc":"accident",
+  "date":"10/5",
+  "agent":"user1agent"
+}

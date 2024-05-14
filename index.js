@@ -31,6 +31,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    phone:{
+        type:Number
+    },
     email: {
         type: String,
         required:true,
@@ -43,23 +46,27 @@ const userSchema = new mongoose.Schema({
 
 const user = mongoose.model('mymodel1', userSchema, 'userSchema')
 
-const todoSchema = new mongoose.Schema({
-   email:{
-    type :String
+const issueSchema = new mongoose.Schema({
+    email:{
+        type :String
+    },
+   claimno:{
+    type :Number
    },
-    title: {
+    agent: {
         type: String,
        
     },
-    desc: {
+    date: {
         type: String
     },
-    time: {
+    desc: {
         type: String
     }
+    
 })
 
-const todolist = mongoose.model('mymodel2', todoSchema, 'todoSchema')
+const issueForm = mongoose.model('mymodel2', issueSchema, 'issueSchema')
 
 
 
@@ -69,38 +76,39 @@ app.post('/createuser', async (req, res) => {
     const name = body.name;
     const email = body.email;
     const password = body.password;
+    const phone=body.phone;
     
 
 
-    const insertedUser = await user.create({name: name, email: email,password:password})
+    const insertedUser = await user.create({name: name,phone:phone, email: email,password:password})
 
     res.json({msg: "User inserted successfully", data: insertedUser})
 })
 
 
-app.post('/createtodo/:email', async (req, res) => {
+app.post('/createissue/:email', async (req, res) => {
     const body = req.body;
     
     const {email}=req.params;
-    const title = body.title;
+    const claimno = body.claimno;
     const desc = body.desc;
-    const time = body.time;
+    const date = body.date;
+    const agent=body.agent;
+    const insertedIssue = await issueForm.create({email:email,claimno:claimno,agent:agent,desc:desc,date:date})
 
-    const insertedTodo = await todolist.create({email:email,title:title,desc:desc,time:time})
-
-    res.json({msg: "data inserted successfully", data: insertedTodo})
+    res.json({msg: "data inserted successfully", data: insertedIssue})
 })
 
 app.get('/count', async (req, res) =>{
     res.json({count: await user.countDocuments()})
 })
 
-app.get('/tododata', async (req, res) => {
+app.get('/issuedata', async (req, res) => {
     try {
         // Fetch all users from the database
-        const todoData = await todolist.find({});
+        const issueData = await issueForm.find({});
 
-        res.json(todoData);
+        res.json(issueData);
     } catch (error) {
         console.error("Error while fetching users:", error);
         res.status(500).json({ error: "Internal server error" });
@@ -124,15 +132,15 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/tododata/:email', async (req, res) => {
+app.get('/issuedata/:email', async (req, res) => {
     const { email } = req.params;
     try {
         // Fetch all todo data where the email matches
-        const todoData = await todolist.find({ email });
+        const issueFormdata = await issueForm.find({ email });
 
-        res.json(todoData);
+        res.json(issueFormdata);
     } catch (error) {
-        console.error("Error while fetching todo data:", error);
+        console.error("Error while fetching Issue data:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
